@@ -1,11 +1,11 @@
-# Type Validator
+# Record Validator
 
-Type validator is a NodeJS package that allows you to do a runtime check of a given type.
+Record validator is a NodeJS package that allows you to do a runtime check of a given Record.
 
 ## How to use it
 
 ```typescript
-import { TypeValidator } from "type-validator"
+import { TypeValidator } from "record-validator"
 
 interface ISimpleTest {
   id: number,

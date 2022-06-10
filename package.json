@@ -1,5 +1,5 @@
 {
-  "name": "type-validator",
+  "name": "record-validator",
   "version": "1.0.0",
   "description": "Validate typing of a JavaScript record",
   "main": "build/index.js",
