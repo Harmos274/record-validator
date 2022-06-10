@@ -2,9 +2,13 @@
   "name": "type-validator",
   "version": "1.0.0",
   "description": "Validate typing of a JavaScript record",
-  "main": "index.js",
-  "author": "Lilian VERLHAC",
+  "main": "build/index.js",
+  "author": "Lilian VERLHAC <lilian.verlhac@outlook.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Harmos274/type-validator"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest --coverage --coverageDirectory ./coverage"
