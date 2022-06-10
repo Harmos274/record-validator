@@ -33,5 +33,5 @@ validator.test(value)
 // Returns null on success and a string explaining the error on failure.
 ```
 
-**You should check the [unit tests]() to know more about this package,
-including how to implement custom validators for your types and nested fields.**
+**You should check the [unit tests](https://github.com/Harmos274/type-validator/blob/master/tests/unit.test.ts) 
+to know more about this package, including how to implement custom validators for your types and nested fields.**
