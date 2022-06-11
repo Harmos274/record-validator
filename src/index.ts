@@ -18,15 +18,35 @@ export class TypeValidator<T extends Record<keyof T, unknown>> {
         const customValidator = descriptor[key].customValidator
 
         if (type !== undefined) {
-          const invalidType = typeValidator<T>(type, key, value[key])
+          const invalidType = typeValidator(type, key.toString(), value[key])
 
           if (invalidType) {
             return invalidType
           }
           const nestedValue = descriptor[key].value
+          const arrayType = descriptor[key].arrayType
 
           if (type === "object" && nestedValue !== undefined) {
             return TypeValidator.testFromRaw(nestedValue, value[key])
+          } else if (type === "array" && arrayType !== undefined) {
+            //                                 ↓ wtf?
+            const valueArray = value[key] as unknown as Array<unknown>
+            let validator: (value: unknown) => string | null
+
+            if (typeof arrayType === "string") {
+              validator = (value: unknown): string | null => typeValidator(arrayType, key.toString(), value)
+            } else if (typeof arrayType === "object"){
+              validator = (value: unknown) => TypeValidator.testFromRaw(arrayType, value)
+            } else {
+              throw new Error("Abort mission")
+            }
+            for (let i = 0; (i < valueArray.length); i++) {
+              const invalidValue = validator(valueArray[i])
+
+              if (invalidValue) {
+                return `[index ${i}] of ${invalidValue}`
+              }
+            }
           }
         }
         if (customValidator !== undefined) {
@@ -46,18 +66,25 @@ export class TypeValidator<T extends Record<keyof T, unknown>> {
 
 export type FieldValidator<T> = (key: keyof T, value: T[keyof T]) => string | null
 
-export type ValidableType = "string" | "number" | "object"
+export type ValidableType = "string" | "number" | "object" | "array"
+
+type GetElementType<T extends any[]> = T extends (infer U)[] ? U : never;
 
 export type ObjectDescriptor<T extends Record<keyof T, unknown>> = {
-  [Property in keyof T]: {
+  [Key in keyof T]: {
     required?: boolean
     type?: ValidableType
     customValidator?: FieldValidator<T>
-    value?: ObjectDescriptor<T[Property]>
+    value?: ObjectDescriptor<T[Key]>
+    arrayType?: ObjectDescriptor<Record<string, unknown>> | ValidableType
   }
 }
 
-function typeValidator<T>(type: ValidableType, key: keyof T, value: unknown) {
-  return typeof value === type ? null : `"${key.toString()}" should be of type ${type}.`
+function typeValidator(type: ValidableType, key: string, value: unknown) {
+  // special case for array because typeof array is object
+  if (type === "array") {
+    return Array.isArray(value) ? null : `"${key}" should be an array.`
+  }
+  return typeof value === type ? null : `"${key}" should be of type ${type}.`
 }
 

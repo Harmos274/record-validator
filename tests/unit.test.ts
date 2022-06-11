@@ -14,6 +14,19 @@ interface INestedTest {
   }
 }
 
+interface IArrayTest {
+  id: number
+  properties: Array<string | number>
+}
+
+interface IObjectArrayTest {
+  id: number
+  properties: Array<{
+    role: string,
+    roleId: number | string
+  }>
+}
+
 describe("Unit Tests", () => {
   describe("Basic Objects", () => {
     const simple_tested_value: ISimpleTest = {
@@ -268,4 +281,111 @@ describe("Unit Tests", () => {
     })
   })
 
+  describe("Array Objects", () => {
+    it("should validate the type of an array of value", () => {
+      const validator = new TypeValidator<IArrayTest>({
+        id: {
+          type: "number"
+        },
+        properties: {
+          type: "array",
+          arrayType: "string"
+        }
+      })
+
+      const tested_value: IArrayTest = {
+        id: 2313,
+        properties: ["admin", "user"]
+      }
+      expect(validator.test(tested_value)).toBeFalsy()
+    })
+
+    it("shouldn't validate the type of an array of value if one of them isn't correctly typed", () => {
+      const validator = new TypeValidator<IArrayTest>({
+        id: {
+          type: "number"
+        },
+        properties: {
+          type: "array",
+          arrayType: "string"
+        }
+      })
+
+      const tested_value: IArrayTest = {
+        id: 2313,
+        properties: ["admin", 12]
+      }
+      expect(validator.test(tested_value)).toBe('[index 1] of "properties" should be of type string.')
+    })
+
+    it("should validate the type of an array of object", () => {
+      const validator = new TypeValidator<IObjectArrayTest>({
+        id: {
+          type: "number"
+        },
+        properties: {
+          type: "array",
+          arrayType: {
+            role: {
+              required: true,
+              type: "string"
+            },
+            roleId: {
+              required: true,
+              type: "number"
+            }
+          }
+        }
+      })
+
+      const tested_value: IObjectArrayTest = {
+        id: 2313,
+        properties: [
+        {
+          roleId: 21313,
+          role: "fesf"
+        },
+        {
+          roleId: 231,
+          role: "fdsfdsf"
+        }]
+      }
+      expect(validator.test(tested_value)).toBeFalsy()
+    })
+
+    it("shouldn't validate the type of an array of object if one of them isn't correctly typed", () => {
+      const validator = new TypeValidator<IObjectArrayTest>({
+        id: {
+          type: "number"
+        },
+        properties: {
+          type: "array",
+          arrayType: {
+            role: {
+              required: true,
+              type: "string"
+            },
+            roleId: {
+              required: true,
+              type: "number"
+            }
+          }
+        }
+      })
+
+      const tested_value: IObjectArrayTest = {
+        id: 2313,
+        properties: [
+        {
+          roleId: 21313,
+          role: "fesf"
+        },
+        {
+          roleId: "231",
+          role: "fdsfdsf"
+        }]
+      }
+      expect(validator.test(tested_value)).toBe('[index 1] of "roleId" should be of type number.')
+    })
+  })
 })
