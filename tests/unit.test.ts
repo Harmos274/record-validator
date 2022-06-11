@@ -378,7 +378,7 @@ describe("Unit Tests", () => {
         properties: [
         {
           roleId: 21313,
-          role: "fesf"
+          role: "admin"
         },
         {
           roleId: "231",
