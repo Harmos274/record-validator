@@ -27,15 +27,19 @@ export class TypeValidator<T extends Record<keyof T, unknown>> {
           const arrayType = descriptor[key].arrayType
 
           if (type === "object" && nestedValue !== undefined) {
-            return TypeValidator.testFromRaw(nestedValue, value[key])
+            const invalidObject = TypeValidator.testFromRaw(nestedValue, value[key])
+
+            if (invalidObject) {
+              return invalidObject
+            }
           } else if (type === "array" && arrayType !== undefined) {
             //                                 ↓ wtf?
             const valueArray = value[key] as unknown as Array<unknown>
             let validator: (value: unknown) => string | null
 
-            if (typeof arrayType === "string") {
+            if (typeof arrayType === "string" || typeof arrayType === "number") {
               validator = (value: unknown): string | null => typeValidator(arrayType, key.toString(), value)
-            } else if (typeof arrayType === "object"){
+            } else if (typeof arrayType === "object") {
               validator = (value: unknown) => TypeValidator.testFromRaw(arrayType, value)
             } else {
               throw new Error("Abort mission")

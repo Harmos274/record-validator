@@ -232,11 +232,44 @@ describe("Unit Tests", () => {
 
   describe("Custom Validators", () => {
     const customNameValidator: FieldValidator<ISimpleTest, "name"> = (key, value) => {
-      if ((value as string).length < 5) {
+      if (value.length < 5) {
         return `"${key}" should be longer than 5 characters.`
       }
       return null
     }
+
+    it ("should validate a use case with a custom validator and a valid name with a nested object", () => {
+      const validator = new TypeValidator<INestedTest>({
+        id: {
+          type: "number"
+        },
+        address: {
+          type: "object",
+          value: {
+            city: {
+              type: "string"
+            },
+            zipcode: {
+              type: "number"
+            }
+          }
+        },
+        name: {
+          type: "string",
+          customValidator: customNameValidator
+        }
+      })
+      const tested_value = {
+        id: 12,
+        name: "toto",
+        address: {
+          city: "city",
+          zipcode: 123123
+        }
+      }
+
+      expect(validator.test(tested_value)).toBe('"name" should be longer than 5 characters.')
+    })
 
     it("should validate a use case with a custom validator and a valid name", () => {
       const validator = new TypeValidator<ISimpleTest>({
@@ -284,12 +317,12 @@ describe("Unit Tests", () => {
   describe("Array Objects", () => {
     it("should validate the type of an array of value", () => {
       const validator = new TypeValidator<IArrayTest>({
-        id: {
-          type: "number"
-        },
         properties: {
           type: "array",
           arrayType: "string"
+        },
+        id: {
+          type: "number"
         }
       })
 
