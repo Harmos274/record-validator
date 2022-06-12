@@ -77,20 +77,20 @@ export type ObjectDescriptor<T extends Record<keyof T, unknown | unknown[]>> = {
     required?: boolean
     type?: "string" | "number"
     customValidator?: FieldValidator<T, Key>
-    value?: ObjectDescriptor<T[Key]>
-    arrayType?: ObjectDescriptor<T[Key] extends (infer U)[] ? U : never> | ValidableType
+    value?: never
+    arrayType?: never
   } | {
     required?: boolean
     type: "object"
     customValidator?: FieldValidator<T, Key>
-    value: ObjectDescriptor<T[Key]>
+    value: T[Key] extends Record<string, unknown> ? ObjectDescriptor<T[Key]> : never
     arrayType?: never
   } | {
     required?: boolean
     type: "array"
     customValidator?: FieldValidator<T, Key>
     value?: never
-    arrayType: ObjectDescriptor<T[Key] extends (infer U)[] ? U : never> | ValidableType
+    arrayType: T[Key] extends (infer U)[] ? U extends Record<string, unknown> ? ObjectDescriptor<U> : ValidableType : never
   }
 }
 

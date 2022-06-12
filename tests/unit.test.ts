@@ -323,7 +323,7 @@ describe("Unit Tests", () => {
         },
         id: {
           type: "number"
-        }
+        },
       })
 
       const tested_value: IArrayTest = {
