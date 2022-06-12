@@ -64,17 +64,29 @@ export class TypeValidator<T extends Record<keyof T, unknown>> {
   }
 }
 
-export type FieldValidator<T> = (key: keyof T, value: T[keyof T]) => string | null
+export type FieldValidator<T, Key extends keyof T> = (key: Key, value: T[Key]) => string | null
 
 export type ValidableType = "string" | "number" | "object" | "array"
 
 export type ObjectDescriptor<T extends Record<keyof T, unknown | unknown[]>> = {
   [Key in keyof T]: {
     required?: boolean
-    type?: ValidableType
-    customValidator?: FieldValidator<T>
+    type?: "string" | "number"
+    customValidator?: FieldValidator<T, Key>
     value?: ObjectDescriptor<T[Key]>
     arrayType?: ObjectDescriptor<T[Key] extends (infer U)[] ? U : never> | ValidableType
+  } | {
+    required?: boolean
+    type: "object"
+    customValidator?: FieldValidator<T, Key>
+    value: ObjectDescriptor<T[Key]>
+    arrayType?: never
+  } | {
+    required?: boolean
+    type: "array"
+    customValidator?: FieldValidator<T, Key>
+    value?: never
+    arrayType: ObjectDescriptor<T[Key] extends (infer U)[] ? U : never> | ValidableType
   }
 }
 

@@ -231,7 +231,7 @@ describe("Unit Tests", () => {
   })
 
   describe("Custom Validators", () => {
-    const customNameValidator: FieldValidator<ISimpleTest> = (key, value) => {
+    const customNameValidator: FieldValidator<ISimpleTest, "name"> = (key, value) => {
       if ((value as string).length < 5) {
         return `"${key}" should be longer than 5 characters.`
       }
@@ -372,7 +372,6 @@ describe("Unit Tests", () => {
           }
         }
       })
-
       const tested_value: IObjectArrayTest = {
         id: 2313,
         properties: [
@@ -385,6 +384,7 @@ describe("Unit Tests", () => {
           role: "fdsfdsf"
         }]
       }
+
       expect(validator.test(tested_value)).toBe('[index 1] of "roleId" should be of type number.')
     })
   })
