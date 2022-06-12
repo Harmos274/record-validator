@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Harmos274/type-validator"
+    "url": "https://github.com/Harmos274/record-validator"
   },
   "scripts": {
     "build": "tsc",
