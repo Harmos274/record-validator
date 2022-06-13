@@ -10,31 +10,29 @@ export class TypeValidator<T extends Record<keyof T, unknown>> {
   }
 
   private static testFromRaw<T>(descriptor: ObjectDescriptor<T>, value: T): string | null {
-    const keys: Array<keyof T> = Object.keys(descriptor) as Array<keyof T>
+    for (const key in descriptor) {
+      const actualValue = value[key]
+      const type = descriptor[key].type
+      const customValidator = descriptor[key].customValidator
+      const nestedValue = descriptor[key].value
+      const arrayType = descriptor[key].arrayType
 
-    for (const key of keys) {
-      if (value[key] !== undefined) {
-        const type = descriptor[key].type
-        const customValidator = descriptor[key].customValidator
-
+      if (actualValue !== undefined) {
         if (type !== undefined) {
-          const invalidType = typeValidator(type, key.toString(), value[key])
+          const invalidType = typeValidator(type, key.toString(), actualValue)
 
           if (invalidType) {
             return invalidType
           }
-          const nestedValue = descriptor[key].value
-          const arrayType = descriptor[key].arrayType
-
           if (type === "object" && nestedValue !== undefined) {
-            const invalidObject = TypeValidator.testFromRaw(nestedValue, value[key])
+            const invalidObject = TypeValidator.testFromRaw(nestedValue, actualValue)
 
             if (invalidObject) {
               return invalidObject
             }
           } else if (type === "array" && arrayType !== undefined) {
             //                                 ↓ wtf?
-            const valueArray = value[key] as unknown as Array<unknown>
+            const valueArray = actualValue as unknown as Array<unknown>
             let validator: (value: unknown) => string | null
 
             if (typeof arrayType === "string" || typeof arrayType === "number") {
@@ -44,8 +42,8 @@ export class TypeValidator<T extends Record<keyof T, unknown>> {
             } else {
               throw new Error("Abort mission")
             }
-            for (let i = 0; (i < valueArray.length); i++) {
-              const invalidValue = validator(valueArray[i])
+            for (const [i, val] of valueArray.entries()) {
+              const invalidValue = validator(val)
 
               if (invalidValue) {
                 return `[index ${i}] of ${invalidValue}`
@@ -94,7 +92,7 @@ export type ObjectDescriptor<T extends Record<keyof T, unknown | unknown[]>> = {
   }
 }
 
-function typeValidator(type: ValidableType, key: string, value: unknown) {
+function typeValidator(type: ValidableType, key: string, value: unknown): string | null {
   // special case for array because typeof array is object
   if (type === "array") {
     return Array.isArray(value) ? null : `"${key}" should be an array.`
